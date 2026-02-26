@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Buchung</title>
+</head>
+<body>
+    <h1>Ticket Buchung</h1>
+    <form id="bookingForm">
+        <div>
+            <label for="firstName">Vorname:</label>
+            <input type="text" id="firstName" name="firstName" required>
+        </div>
+        <div>
+            <label for="lastName">Nachname:</label>
+            <input type="text" id="lastName" name="lastName" required>
+        </div>
+        <button type="submit">Ticket buchen</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('http://localhost:5000/tickets/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        lastName: lastName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h2>Ticket erfolgreich gebucht!</h2>
+                        <p><strong>Vorname:</strong> ${data.first_name}</p>
+                        <p><strong>Nachname:</strong> ${data.last_name}</p>
+                        <p><strong>Ticket-ID:</strong> ${data.ticket_id}</p>
+                        <p><strong>Passwort:</strong> ${data.password}</p>
+                    `;
+                    document.getElementById('bookingForm').reset();
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">Fehler: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Fehler beim Buchen: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
