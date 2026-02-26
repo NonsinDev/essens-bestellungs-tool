@@ -1,0 +1,9 @@
+USE essens-bestellungs-tool;
+
+CREATE TABLE IF NOT EXISTS tickets (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  password VARCHAR(100) NOT NULL,
+  balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
