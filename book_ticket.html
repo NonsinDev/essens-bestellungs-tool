@@ -4,30 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Buchung</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            color: #28a745;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+        }
+
+        .button-secondary:hover {
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .button-success {
+            background: #28a745;
+        }
+
+        .button-success:hover {
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 2px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        /* Versteckte Ticket-Vorschau für PDF */
+        #ticketPreview {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Ticket Buchung</h1>
-    <form id="bookingForm">
-        <div>
-            <label for="firstName">Vorname:</label>
-            <input type="text" id="firstName" name="firstName" required>
-        </div>
-        <div>
-            <label for="lastName">Nachname:</label>
-            <input type="text" id="lastName" name="lastName" required>
-        </div>
-        <button type="submit">Ticket buchen</button>
-    </form>
+    <div class="container">
+        <h1>🎫 Ticket Buchung</h1>
+        
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="firstName">Vorname</label>
+                <input type="text" id="firstName" name="firstName" placeholder="z.B. Max" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Nachname</label>
+                <input type="text" id="lastName" name="lastName" placeholder="z.B. Mustermann" required>
+            </div>
+            <button type="submit">Ticket buchen</button>
+        </form>
 
-    <div id="result"></div>
+        <div id="result" class="result"></div>
+    </div>
+
+    <!-- Versteckte Ticket-Vorschau für PDF-Export -->
+    <div id="ticketPreview"></div>
 
     <script>
+        let lastTicketData = null;
+
         document.getElementById('bookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
             const resultDiv = document.getElementById('result');
+            
+            // Validierung
+            if (!firstName || !lastName) {
+                resultDiv.innerHTML = '<div class="error">Bitte füllen Sie alle Felder aus.</div>';
+                resultDiv.classList.add('show');
+                return;
+            }
+
+            // Loading-Zustand
+            resultDiv.innerHTML = '<div class="loading">Ticket wird erstellt...</div>';
+            resultDiv.classList.add('show');
             
             try {
                 const response = await fetch('http://localhost:5000/tickets/book', {
@@ -44,21 +228,261 @@
                 const data = await response.json();
                 
                 if (response.ok) {
+                    lastTicketData = data;
+                    const qrContent = `${data.last_name} ${data.first_name} ${data.ticket_id}`;
+                    
                     resultDiv.innerHTML = `
-                        <h2>Ticket erfolgreich gebucht!</h2>
-                        <p><strong>Vorname:</strong> ${data.first_name}</p>
-                        <p><strong>Nachname:</strong> ${data.last_name}</p>
-                        <p><strong>Ticket-ID:</strong> ${data.ticket_id}</p>
-                        <p><strong>Passwort:</strong> ${data.password}</p>
+                        <h2>✓ Ticket erfolgreich erstellt!</h2>
+                        <div class="button-group">
+                            <button type="button" class="button-success" onclick="openTicketInNewTab()">📄 Im Browser ansehen</button>
+                            <button type="button" class="button-success" onclick="downloadTicketAsPDF()">📥 Als PDF herunterladen</button>
+                        </div>
+                        <button type="button" class="button-secondary" onclick="location.reload()">➕ Neues Ticket</button>
                     `;
+                    
+                    // QR-Code generieren und speichern (nicht in Vorschau anzeigen)
+                    generateQRCode(qrContent);
+                    
                     document.getElementById('bookingForm').reset();
                 } else {
-                    resultDiv.innerHTML = `<p style="color: red;">Fehler: ${data.error}</p>`;
+                    resultDiv.innerHTML = `<div class="error">❌ Fehler: ${escapeHtml(data.error || 'Unbekannter Fehler')}</div>`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = `<p style="color: red;">Fehler beim Buchen: ${error.message}</p>`;
+                resultDiv.innerHTML = `<div class="error">❌ Fehler beim Buchen: ${escapeHtml(error.message)}</div>`;
             }
         });
+
+        function generateQRCode(content) {
+            // QR-Code wird später beim Anzeigen/PDF-Export generiert
+            // Hier speichern wir nur den Inhalt
+            lastTicketData.qrContent = content;
+        }
+
+        function openTicketInNewTab() {
+            if (!lastTicketData) return;
+            
+            const ticketHTML = generateTicketHTML(lastTicketData);
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(ticketHTML);
+            newWindow.document.close();
+        }
+
+        function downloadTicketAsPDF() {
+            if (!lastTicketData) return;
+            
+            const element = document.createElement('div');
+            element.innerHTML = generateTicketHTML(lastTicketData, true);
+            
+            // Warte kurz, damit QR-Code generiert wird
+            setTimeout(() => {
+                const opt = {
+                    margin: 10,
+                    filename: `Ticket_${lastTicketData.ticket_id}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                };
+                html2pdf().set(opt).from(element).save();
+            }, 500);
+        }
+
+        function generateTicketHTML(ticketData, forPDF = false) {
+            return `
+                <!DOCTYPE html>
+                <html lang="de">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Ticket ${escapeHtml(ticketData.ticket_id)}</title>
+                    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            background: #f5f5f5;
+                            padding: 20px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                        }
+
+                        .ticket-container {
+                            background: white;
+                            border-radius: 15px;
+                            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                            padding: 40px;
+                            max-width: 500px;
+                            width: 100%;
+                        }
+
+                        .ticket-header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #667eea;
+                            padding-bottom: 20px;
+                        }
+
+                        .ticket-header h1 {
+                            color: #667eea;
+                            font-size: 28px;
+                            margin-bottom: 10px;
+                        }
+
+                        .ticket-header p {
+                            color: #999;
+                            font-size: 14px;
+                        }
+
+                        .ticket-info {
+                            margin-bottom: 30px;
+                        }
+
+                        .info-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 15px;
+                            border-bottom: 1px solid #eee;
+                            align-items: center;
+                        }
+
+                        .info-row:last-child {
+                            border-bottom: none;
+                        }
+
+                        .info-label {
+                            font-weight: bold;
+                            color: #667eea;
+                            font-size: 14px;
+                            min-width: 120px;
+                        }
+
+                        .info-value {
+                            color: #333;
+                            font-size: 16px;
+                            text-align: right;
+                        }
+
+                        .qr-code-container {
+                            text-align: center;
+                            margin: 30px 0;
+                            padding: 20px;
+                            background: #f9f9f9;
+                            border-radius: 10px;
+                            border: 2px dashed #ddd;
+                        }
+
+                        .qr-code-container canvas {
+                            max-width: 100%;
+                            height: auto;
+                        }
+
+                        .qr-label {
+                            margin-top: 10px;
+                            font-size: 12px;
+                            color: #999;
+                            font-weight: 500;
+                        }
+
+                        .ticket-footer {
+                            text-align: center;
+                            padding-top: 20px;
+                            border-top: 2px solid #667eea;
+                            color: #999;
+                            font-size: 12px;
+                        }
+
+                        @media print {
+                            body {
+                                background: white;
+                                padding: 0;
+                            }
+                            .ticket-container {
+                                box-shadow: none;
+                                border-radius: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="ticket-container">
+                        <div class="ticket-header">
+                            <h1>🎫 Ticket</h1>
+                            <p>Gültig für die Veranstaltung</p>
+                        </div>
+
+                        <div class="ticket-info">
+                            <div class="info-row">
+                                <span class="info-label">Ticket-ID:</span>
+                                <span class="info-value">${escapeHtml(ticketData.ticket_id)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Vorname:</span>
+                                <span class="info-value">${escapeHtml(ticketData.first_name)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Nachname:</span>
+                                <span class="info-value">${escapeHtml(ticketData.last_name)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Passwort:</span>
+                                <span class="info-value">${escapeHtml(ticketData.password)}</span>
+                            </div>
+                        </div>
+
+                        <div class="qr-code-container">
+                            <canvas id="qrCanvas"></canvas>
+                            <div class="qr-label">QR-Code (Nachname Vorname Ticket-ID)</div>
+                        </div>
+
+                        <div class="ticket-footer">
+                            <p>Bitte bewahren Sie dieses Ticket sicher auf.</p>
+                        </div>
+                    </div>
+
+                    <script>
+                        // QR-Code generieren
+                        QRCode.toCanvas(
+                            document.getElementById('qrCanvas'),
+                            '${ticketData.qrContent || ''}',
+                            {
+                                errorCorrectionLevel: 'H',
+                                type: 'image/jpeg',
+                                quality: 0.95,
+                                margin: 1,
+                                width: 300,
+                                color: {
+                                    dark: '#000000',
+                                    light: '#FFFFFF'
+                                }
+                            },
+                            function (error) {
+                                if (error) {
+                                    console.error('QR-Code Fehler:', error);
+                                }
+                            }
+                        );
+                    <\/script>
+                </body>
+                </html>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
     </script>
 </body>
 </html>
