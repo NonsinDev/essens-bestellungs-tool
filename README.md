@@ -22,7 +22,7 @@ Base URL: `http://localhost:5000`
 
 - Description: Returns all tickets including ID, first name, last name and balance.
 - Response format: JSON array of objects with the following fields:
-  - `ticket_id`: string (6-digit, leading zeros, e.g. "000001")
+  - `ticket_id`: int (6-digit, leading zeros, e.g. "000001")
   - `first_name`: string
   - `last_name`: string
   - `balance`: number (e.g. 12.34)
@@ -30,8 +30,18 @@ Base URL: `http://localhost:5000`
 
 ```json
 [
-  { "ticket_id": "000001", "first_name": "Max", "last_name": "Mustermann", "balance": 10.5 },
-  { "ticket_id": "000002", "first_name": "Erika", "last_name": "Musterfrau", "balance": 0.0 }
+  { 
+    "ticket_id": "000001", 
+    "first_name": "Max", 
+    "last_name": "Mustermann", 
+    "balance": 10.5 
+  },
+  { 
+    "ticket_id": "000002", 
+    "first_name": "Erika", 
+    "last_name": "Musterfrau", 
+    "balance": 0.0 
+  }
 ]
 ```
 
