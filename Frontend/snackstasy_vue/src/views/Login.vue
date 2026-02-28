@@ -91,28 +91,7 @@ onMounted(() => {
     <div class="card" :class="{ 'card--success': loginSuccess }">
       <!-- Header -->
       <div class="card__header">
-        <div class="logo-ring">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
-            <circle cx="24" cy="24" r="20" stroke="url(#g1)" stroke-width="2" />
-            <path
-              d="M16 24h16M24 16l8 8-8 8"
-              stroke="url(#g2)"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <defs>
-              <linearGradient id="g1" x1="4" y1="4" x2="44" y2="44">
-                <stop stop-color="#818cf8" />
-                <stop offset="1" stop-color="#a78bfa" />
-              </linearGradient>
-              <linearGradient id="g2" x1="16" y1="16" x2="32" y2="32">
-                <stop stop-color="#c4b5fd" />
-                <stop offset="1" stop-color="#818cf8" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+
         <h1 class="card__title">Willkommen</h1>
         <p class="card__subtitle">Ticket-System · Zugang</p>
       </div>
@@ -188,14 +167,31 @@ onMounted(() => {
         :disabled="isLoggingIn || loginSuccess"
         :class="{ 'login-btn--loading': isLoggingIn, 'login-btn--success': loginSuccess }"
       >
-        <span v-if="!isLoggingIn && !loginSuccess" class="login-btn__content">
-          <i class="pi pi-sign-in"></i> Einloggen
-        </span>
-        <span v-else-if="isLoggingIn" class="login-btn__spinner">
-          <span class="spinner"></span>
-        </span>
-        <span v-else class="login-btn__content"> <i class="pi pi-check"></i> Erfolgreich </span>
+      <div class="logo-ring">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+            <circle cx="24" cy="24" r="20" stroke="url(#g1)" stroke-width="2" />
+            <path
+              d="M16 24h16M24 16l8 8-8 8"
+              stroke="url(#g2)"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <defs>
+              <linearGradient id="g1" x1="4" y1="4" x2="44" y2="44">
+                <stop stop-color="#818cf8" />
+                <stop offset="1" stop-color="#a78bfa" />
+              </linearGradient>
+              <linearGradient id="g2" x1="16" y1="16" x2="32" y2="32">
+                <stop stop-color="#c4b5fd" />
+                <stop offset="1" stop-color="#818cf8" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
       </button>
+
+      
 
       <!-- Footer -->
       <p class="card__footer">Sicherer Zugang · Verschlüsselt</p>
@@ -285,10 +281,11 @@ onMounted(() => {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
+  margin: 900rem;
   padding: 2.5rem 2rem;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -328,12 +325,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height:70px;
   border-radius: 50%;
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.25);
-  margin-bottom: 1rem;
   animation: pulse-ring 3s ease-in-out infinite;
 }
 
@@ -563,7 +559,7 @@ onMounted(() => {
 .login-btn {
   margin-top: 1.25rem;
   width: 100%;
-  padding: 0.9rem;
+  
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #6d28d9, #4f46e5);
@@ -667,6 +663,7 @@ onMounted(() => {
     width: 26px;
     height: 26px;
   }
+
 }
 
 @media (max-width: 360px) {
