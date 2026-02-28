@@ -10,6 +10,14 @@ docker-compose up --build
 
 After startup the API will be available at http://localhost:5000/tickets/ids
 
-Hinweis: Die API gibt Ticket-IDs als 6-stellige Strings zurück (z. B. "000001", "000002").
+Hint: The API returns the id as a 6-digit string ("000001", "000002").
 
-**GET /tickets/ids** liefert jetzt zusätzlich `first_name`, `last_name` und `balance` für jedes Ticket.
+**GET /tickets** returns `id`, `first_name`, `last_name` and `balance` for each ticket in the db.
+**POST /tickets/book** creates a new ticket in the db.
+
+**GET /login** returns the `id`, `first_name`, `last_name` and `balance` if correct `id` and `password` is in body.
+
+**GET /balance/{id}** returns the balance of the user.
+**PUT /balance/{id}/update/{newBalance}** updates the balance to new value and returns new value if successful.
+**PUT /balance/{id}/remove/{amount}** removes the amount from balance but only if result is greater then 0. (Needs to be checkt if works correnctly)
+**PUT /balance/{id}/add/{amount}** adds amount to balance.
