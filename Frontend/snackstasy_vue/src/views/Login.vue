@@ -208,7 +208,7 @@ onMounted(() => {
 
 /* ── Scene ── */
 .scene {
-  min-height: 100dvh;
+  max-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
@@ -662,6 +662,10 @@ onMounted(() => {
   .logo-icon {
     width: 26px;
     height: 26px;
+  }
+  .scene {
+    min-height: 100%;
+    height: 100vh;
   }
 
 }
