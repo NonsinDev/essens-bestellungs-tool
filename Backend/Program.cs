@@ -38,6 +38,7 @@ app.UseCors(builder => builder
 // register endpoints from separate router classes
 app.MapTicketRoutes(connStr);
 app.MapLoginRoutes(connStr);
+app.MapBalanceRoutes(connStr);
 
 app.Run();
 

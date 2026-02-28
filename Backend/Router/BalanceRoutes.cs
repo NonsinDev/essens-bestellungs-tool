@@ -10,13 +10,14 @@ namespace Backend.Router
             app.MapGet("/balance/{ticketId}", async (string ticketId) =>
             {
                 try
-                {
+                {   
+                    const string balanceQuery =
+                        "SELECT balance FROM tickets WHERE id = @id;";
                     using var conn = new MySqlConnection(connStr);
-                    var balance = await conn.QueryFirstOrDefaultAsync<decimal>(
-                        "SELECT balance FROM tickets WHERE id = @id;", new { id = ticketId });
+                    var balance = await conn.QueryFirstOrDefaultAsync<decimal?>(balanceQuery, new { id = ticketId });
 
-                    if (balance == default)
-                        return Results.NotFound(new { error = "Ticket not found." });
+                    if (balance == null)
+                        return Results.Problem(detail: "Ticket not found.", statusCode: 404);
 
                     return Results.Ok(new { balance });
                 }
@@ -40,7 +41,7 @@ namespace Backend.Router
                     if (rowsAffected == 0)
                         return Results.NotFound(new { error = "Ticket not found." });
 
-                    return Results.Ok(new { message = "Balance updated successfully." });
+                    return Results.Ok(new { message = $"Successfully updated balance for ticket {ticketId} to {newBalance}." });
                 }
                 catch (Exception ex)
                 {
@@ -55,18 +56,46 @@ namespace Backend.Router
                 {
                     using var conn = new MySqlConnection(connStr);
                     const string query =
-                        "UPDATE tickets SET balance = GREATEST(0, balance - @amount) WHERE id = @id;";
+                        "UPDATE tickets SET balance = balance - @amount WHERE id = @id AND balance >= @amount;";
+
+                    int rowsAffected = await conn.ExecuteAsync(query, new { amount, id = ticketId });
+
+                    if (rowsAffected == 0)
+                    {
+                        var exists = await conn.ExecuteScalarAsync<long>("SELECT COUNT(1) FROM tickets WHERE id = @id;", new { id = ticketId });
+                        if (exists == 0)
+                            return Results.NotFound(new { error = "Ticket not found." });
+                        
+                        return Results.BadRequest(new { error = "Insufficient balance." });
+                    }
+
+                    return Results.Ok(new { message = $"Successfully removed {amount} from ticket {ticketId}." });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in PUT /balance/{{ticketId}}/remove/{{amount}}: {ex}");
+                    return Results.Problem("Internal server error: " + ex.Message);
+                }
+            });
+
+            app.MapPut("/balance/{ticketId}/add/{amount}", async (string ticketId, decimal amount) =>
+            {
+                try
+                {
+                    using var conn = new MySqlConnection(connStr);
+                    const string query =
+                        "UPDATE tickets SET balance = balance + @amount WHERE id = @id;";
 
                     int rowsAffected = await conn.ExecuteAsync(query, new { amount, id = ticketId });
 
                     if (rowsAffected == 0)
                         return Results.NotFound(new { error = "Ticket not found." });
 
-                    return Results.Ok(new { message = "Amount removed successfully. Balance cannot go below zero." });
+                    return Results.Ok(new { message = $"Successfully added {amount} to ticket {ticketId}." });
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error in PUT /balance/{{ticketId}}/remove/{{amount}}: {ex}");
+                    Console.WriteLine($"Error in PUT /balance/{{ticketId}}/add/{{amount}}: {ex}");
                     return Results.Problem("Internal server error: " + ex.Message);
                 }
             });
