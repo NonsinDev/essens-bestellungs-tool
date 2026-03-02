@@ -1,10 +1,10 @@
 <!-- src/views/LoginView.vue -->
 <script setup lang="ts">
-import { Button, InputText } from 'primevue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { type DetectedBarcode } from 'barcode-detector/pure'
+import InputText from 'primevue/inputtext'
 
 const username = ref('')
 const password = ref('')
@@ -91,7 +91,6 @@ onMounted(() => {
     <div class="card" :class="{ 'card--success': loginSuccess }">
       <!-- Header -->
       <div class="card__header">
-
         <h1 class="card__title">Willkommen</h1>
         <p class="card__subtitle">Ticket-System · Zugang</p>
       </div>
@@ -167,7 +166,7 @@ onMounted(() => {
         :disabled="isLoggingIn || loginSuccess"
         :class="{ 'login-btn--loading': isLoggingIn, 'login-btn--success': loginSuccess }"
       >
-      <div class="logo-ring">
+        <div class="logo-ring">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
             <circle cx="24" cy="24" r="20" stroke="url(#g1)" stroke-width="2" />
             <path
@@ -190,8 +189,6 @@ onMounted(() => {
           </svg>
         </div>
       </button>
-
-      
 
       <!-- Footer -->
       <p class="card__footer">Sicherer Zugang · Verschlüsselt</p>
@@ -326,7 +323,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   width: 70px;
-  height:70px;
+  height: 70px;
   border-radius: 50%;
   background: rgba(129, 140, 248, 0.1);
   border: 1px solid rgba(129, 140, 248, 0.25);
@@ -559,7 +556,7 @@ onMounted(() => {
 .login-btn {
   margin-top: 1.25rem;
   width: 100%;
-  
+
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #6d28d9, #4f46e5);
@@ -667,7 +664,6 @@ onMounted(() => {
     min-height: 100%;
     height: 100vh;
   }
-
 }
 
 @media (max-width: 360px) {
