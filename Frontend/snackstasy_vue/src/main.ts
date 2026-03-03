@@ -7,7 +7,6 @@ import router from './router'
 import Button from 'primevue/button'
 
 
-import 'primevue/resources/primevue.min.css'           // Core
 import 'primeicons/primeicons.css'                     // Icons
 
 import { VueQrcodeReader } from 'vue-qrcode-reader'
