@@ -1,35 +1,72 @@
 # Backend API
 
-This folder contains a minimal .NET 7 API that exposes multiple endpoints such as balance check, adding and subtracting, login, and ticket retrieval and booking. More functions will be added in the future.
+This folder contains a .NET 8.0 web API that manages customer tickets, balance, and orders for the food ordering system. The API provides endpoints for ticket management, user authentication, and balance operations.
+More functions in funture.
 
 Run with Docker Compose from the repository root:
 
 ```bash
-docker-compose up --build
+docker-compose down -v && docker-compose up --build
 ```
 
 After startup the API will be available at http://localhost:5000
 
-Hint: The API returns the id as a 6-digit string ("000001", "000002").
+## Authentication & Session Management
 
-# API Routes
-All routes in this api will get listed here
-## Ticket Route
+The API uses **HTTP Sessions** for authentication. Here's the login workflow:
 
-**GET /tickets** returns `id`, `first_name`, `last_name` and `balance` for each ticket in the db.
+1. **Verification (Optional):** Call `POST /login-check` to verify if an account with given credentials exists (returns user data without creating a session)
+2. **Login:** Call `POST /login` with user ID (ticket ID) and username to authenticate and create a session
+3. **Session Creation:** On successful login, a session is created server-side with user information
+4. **Protected Routes:** Endpoints that modify data (updates, purchases) use the `RequireSession()` filter to ensure a valid session exists
+5. **Username Format:** Usernames are constructed from `first_name` + `last_name` (concatenated)
 
-**POST /tickets/book** creates a new ticket in the db.
+**Example /login-check Request (verification only):**
+```json
+POST /login-check
+{
+  "user_id": "000001",
+  "username": "JohnDoe"
+}
+```
 
-## Login Route
+**Response:**
+```json
+{
+  "exists": true,
+  "user_id": "000001",
+  "first_name": "John",
+  "last_name": "Doe",
+  "balance": 5000
+}
+```
 
-**GET /login** returns the `id`, `first_name`, `last_name` and `balance` if correct `id` and `password` is in body.
+**Example /login Request (creates session):**
+```json
+POST /login
+{
+  "user_id": "000001",
+  "username": "JohnDoe"
+}
+```
 
-## Balance Route
+**Response:**
+```json
+{
+  "message": "Login successful",
+  "logged_in": true,
+  "user_id": "000001",
+  "first_name": "John",
+  "last_name": "Doe",
+  "balance": 5000
+}
+```
 
-**GET /balance/{id}** returns the balance of the user.
+## API Routes
 
-**PUT /balance/{id}/update/{newBalance}** updates the balance to new value and returns new value if successful.
+For detailed API documentation, visit the Swagger UI at:
 
-**PUT /balance/{id}/remove/{amount}** removes the amount from balance but only if result is greater then 0. (Needs to be checkt if works correnctly)
+```
+`swagger.html`
+```
 
-**PUT /balance/{id}/add/{amount}** adds amount to balance.
