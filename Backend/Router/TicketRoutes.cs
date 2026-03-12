@@ -1,4 +1,4 @@
-using Backend.Class;
+using Backend.Models;
 using Dapper;
 using MySqlConnector;
 
@@ -13,16 +13,10 @@ namespace Backend.Router
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    User user = await conn.QueryFirstAsync<User>(
-                        "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, balance AS Balance FROM users;");
+                    var users = await conn.QueryAsync<User>(
+                        "SELECT user_id, first_name, last_name, balance FROM users;");
 
-                    return Results.Ok(new
-                    {
-                        user.user_id,
-                        user.first_name,
-                        user.last_name,
-                        user.balance 
-                    });
+                    return Results.Ok(users);
                 }
                 catch (Exception ex)
                 {
