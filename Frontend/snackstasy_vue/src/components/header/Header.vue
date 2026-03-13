@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import profileManImage from '@/assets/Profil_man.png'
-import profileWomanImage from '@/assets/Profil_woman.png'
 import snackstasyIcon from '/Snackstasy_Icon.png'
 import Dialog from 'primevue/dialog'
 import { ref } from 'vue'
@@ -27,8 +26,10 @@ const handleBalanceUpdate = (newBalance: number) => {
     <div class="header-logo">
       <img :src="snackstasyIcon" alt="Snackstasy Icon" class="logo-icon" />
     </div>
+    <span style="flex: 1"></span>
     <h1 class="snackstasy-title">Snackstasy</h1>
-    <div style="display: flex; flex-direction: row; align-items: center; gap: 1rem">
+    <span style="flex: 1"></span>
+    <div style="display: flex; align-items: center; justify-items: end; gap: 1rem">
       <button class="header-budget" @click="visibleBalance = true" title="Guthaben aufladen">
         <h4>{{ balance.toFixed(2) }} €</h4>
       </button>
@@ -41,7 +42,7 @@ const handleBalanceUpdate = (newBalance: number) => {
       :modal="true"
       :closable="false"
       class="modern-dialog"
-      :style="{ width: '90vw', maxWidth: '700px' }"
+      :style="{ width: '90vw', maxWidth: '700px', marginTop: '5rem' }"
     >
       <Dialog_balance
         :current-balance="balance"
@@ -65,27 +66,28 @@ const handleBalanceUpdate = (newBalance: number) => {
       :modal="true"
       :closable="false"
       class="modern-dialog"
-      :style="{ width: '90vw', maxWidth: '700px' }"
+      :style="{ width: '90vw', maxWidth: '700px', marginTop: '5rem' }"
     >
       <Dialog_profile
         :visible="visible"
         :current-image="profileImage"
+        :balance="balance"
         @update-profile-image="handleProfileImageChange"
+        @switch-to-balance="
+          () => {
+            visible = false
+            visibleBalance = true
+          }
+        "
       />
       <template #footer>
         <div class="dialog-footer">
           <Button
             type="button"
-            label="Abbrechen"
+            label="Schließen"
             severity="secondary"
             @click="visible = false"
             class="footer-button"
-          ></Button>
-          <Button
-            type="button"
-            label="Speichern"
-            @click="visible = false"
-            class="footer-button save-button"
           ></Button>
         </div>
       </template>
@@ -95,6 +97,8 @@ const handleBalanceUpdate = (newBalance: number) => {
 
 <style scoped>
 .header {
+  display: flex;
+  flex-direction: row;
   width: 100%;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: white;
@@ -118,11 +122,11 @@ const handleBalanceUpdate = (newBalance: number) => {
 }
 
 .snackstasy-title {
+  display: flex;
+
   font-family: 'Poppins', sans-serif;
   font-size: 28px;
   font-weight: 800;
-  margin-left: auto;
-  margin-right: auto;
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
