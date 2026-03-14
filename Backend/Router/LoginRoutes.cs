@@ -20,7 +20,7 @@ namespace Backend.Router
                     
                     const string user_check_query =
                         "SELECT user_id AS Id, first_name AS FirstName, last_name AS LastName, balance AS Balance FROM users WHERE user_id = @user_id;";
-                    User user = await conn.QueryFirstAsync<User>(user_check_query, new { user_id = req.user_id });
+                    User user = await conn.QueryFirstOrDefaultAsync<User>(user_check_query, new { user_id = req.user_id });
 
                     if (user == null)
                         return Results.Problem(detail: "User ID not found.", statusCode: 404);
