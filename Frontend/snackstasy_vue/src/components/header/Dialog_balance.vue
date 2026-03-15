@@ -186,7 +186,7 @@ const topUpWithCustomAmount = async () => {
   font-family: 'Poppins', sans-serif;
   font-size: 48px;
   font-weight: 800;
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  background: linear-gradient(135deg, #ffd700 100%, #ffed4e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
