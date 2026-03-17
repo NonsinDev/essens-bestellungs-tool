@@ -10,11 +10,11 @@ Start from the repository root (requires Docker & Docker Compose):
 docker-compose down -v && docker-compose up --build
 ```
 
-After startup the backend API is available at http://localhost:5000/v1/ by default.
+After startup the backend API is available at http://localhost:5002/v1/ by default.
 
 ## API Endpoints
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:5002`
 
 Sufix: `v1`
 
@@ -49,5 +49,3 @@ See [Backend/README.md](Backend/README.md#authentication--session-management) fo
 To add more endpoints (e.g., balance top-up, purchase recording, or ticket deletion), modify `Backend/Program.cs` and update the corresponding route files in `Backend/Router/`.
 
 ---
-
-
