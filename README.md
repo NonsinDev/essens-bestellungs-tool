@@ -45,5 +45,3 @@ See [Backend/README.md](Backend/README.md#authentication--session-management) fo
 To add more endpoints (e.g., balance top-up, purchase recording, or ticket deletion), modify `Backend/Program.cs` and update the corresponding route files in `Backend/Router/`.
 
 ---
-
-
