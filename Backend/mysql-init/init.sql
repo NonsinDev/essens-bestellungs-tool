@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS users (
   first_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL,
   birthday DATE NULL,
-  balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00
+  balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  ticket_id VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS employees (
@@ -21,8 +22,8 @@ CREATE TABLE IF NOT EXISTS employees (
 CREATE TABLE IF NOT EXISTS stands (
   stand_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  pickup_id VARCHAR(255) NOT NULL,
-  tablet_id VARCHAR(255) NOT NULL
+  pickup_id INT NOT NULL,
+  tablet_id INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -35,6 +36,14 @@ CREATE TABLE IF NOT EXISTS items (
 );
 
 -- Default admin user (password: admin123)
-INSERT INTO employees (username, password_hash, first_name, last_name, role) 
-VALUES ('admin', '$2a$11$rBNr6wCBWVH8vPQzMNpJuO3Xf4NzIK4vYHGqZxVmZPwXvxZjZjZjZ', 'Admin', 'User', 'admin')
-ON DUPLICATE KEY UPDATE first_name = first_name;
+ INSERT INTO employees (username, password_hash, first_name, last_name, role)
+ VALUES ('admin', '$2a$11$rBNr6wCBWVH8vPQzMNpJuO3Xf4NzIK4vYHGqZxVmZPwXvxZjZjZjZ', 'Admin', 'User', 'admin')
+ ON DUPLICATE KEY UPDATE first_name = first_name;
+
+-- Users (nur einfügen, wenn ticket_id noch nicht existiert)
+INSERT INTO users (user_id, first_name, last_name, birthday, balance, ticket_id)
+VALUES
+  (1,'Max', 'Rubel', '1990-01-01', 100.00, 'MR-123456'),
+  (2,'Silas', 'Mohr', '1992-05-15', 50.00, 'SM-654321'),
+  (3,'Daniel', 'Jung', '1985-10-20', 75.00, 'JD-789012')
+ON DUPLICATE KEY UPDATE ticket_id = ticket_id;

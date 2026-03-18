@@ -10,18 +10,22 @@ Start from the repository root (requires Docker & Docker Compose):
 docker-compose down -v && docker-compose up --build
 ```
 
-After startup the backend API is available at http://localhost:5000/v1/ by default.
+After startup the backend API is available at http://localhost:5002/v1/ by default.
 
 ## API Endpoints
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:5002`
+
+Sufix: `v1`
 
 Key routes:
 - **`/tickets`** – Manage customer tickets (list, create, book)
 - **`/login`** – User authentication
 - **`/balance`** – Query and update user balance
+- **`/stands`** – Manage stands (list, create, edit, remove)
+- **`/items`** – Manage items (list, create, edit, remove, stock)
 
-For comprehensive API documentation, see [Backend/README.md](Backend/README.md) or the Swagger UI.
+For comprehensive API documentation, see [Backend/README.md](Backend/README.md) or the [Swagger UI](swagger.html).
 
 ## Authentication
 
@@ -45,5 +49,3 @@ See [Backend/README.md](Backend/README.md#authentication--session-management) fo
 To add more endpoints (e.g., balance top-up, purchase recording, or ticket deletion), modify `Backend/Program.cs` and update the corresponding route files in `Backend/Router/`.
 
 ---
-
-

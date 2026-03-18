@@ -14,8 +14,7 @@ namespace Backend.Router
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    var stands = await conn.QueryAsync<Stand>(
-                        "SELECT stand_id, name, pickup_id, tablet_id FROM stands;");
+                    var stands = await conn.QueryAsync<Stand>("SELECT stand_id, name, pickup_id, tablet_id FROM stands;");
 
                     return Results.Ok(stands);
                 }
@@ -32,9 +31,7 @@ namespace Backend.Router
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    var stand = await conn.QueryFirstOrDefaultAsync<Stand>(
-                        "SELECT stand_id, name, pickup_id, tablet_id FROM stands WHERE stand_id = @id;",
-                        new { id = stand_id });
+                    var stand = await conn.QueryFirstAsync<Stand>($"SELECT stand_id, name, pickup_id, tablet_id FROM stands WHERE stand_id = {stand_id};");
 
                     if (stand == null)
                         return Results.NotFound(new { error = "Stand not found." });
@@ -48,7 +45,7 @@ namespace Backend.Router
                 }
             });
 
-            // Create new stand (Manager/Admin only)
+            // Create new stand
             group.MapPost("/stands/create", async (CreateStandRequest req) =>
             {
                 try
@@ -57,17 +54,8 @@ namespace Backend.Router
                         return Results.BadRequest(new { error = "Stand name is required." });
 
                     using var conn = new MySqlConnection(conn_str);
-                    const string query = @"
-                        INSERT INTO stands (name, pickup_id, tablet_id) 
-                        VALUES (@name, @pickup_id, @tablet_id);
-                        SELECT LAST_INSERT_ID();";
 
-                    int id = await conn.QueryFirstAsync<int>(query, new
-                    {
-                        name = req.name,
-                        pickup_id = req.pickup_id ?? "",
-                        tablet_id = req.tablet_id ?? ""
-                    });
+                    int id = await conn.QueryFirstAsync<int>($"INSERT INTO stands (name, pickup_id, tablet_id) VALUES ({req.name}, {req.pickup_id}, {req.tablet_id});SELECT LAST_INSERT_ID();");
 
                     return Results.Ok(new
                     {
@@ -84,7 +72,7 @@ namespace Backend.Router
                 }
             });
 
-            // Update stand (Manager/Admin only)
+            // Update stand
             group.MapPut("/stands/{stand_id}", async (int stand_id, UpdateStandRequest req) =>
             {
                 try
@@ -95,21 +83,7 @@ namespace Backend.Router
                     var parameters = new DynamicParameters();
                     parameters.Add("id", stand_id);
 
-                    if (!string.IsNullOrEmpty(req.name))
-                    {
-                        updates.Add("name = @name");
-                        parameters.Add("name", req.name);
-                    }
-                    if (!string.IsNullOrEmpty(req.pickup_id))
-                    {
-                        updates.Add("pickup_id = @pickup_id");
-                        parameters.Add("pickup_id", req.pickup_id);
-                    }
-                    if (!string.IsNullOrEmpty(req.tablet_id))
-                    {
-                        updates.Add("tablet_id = @tablet_id");
-                        parameters.Add("tablet_id", req.tablet_id);
-                    }
+
 
                     if (updates.Count == 0)
                         return Results.BadRequest(new { error = "No fields to update." });
@@ -129,7 +103,7 @@ namespace Backend.Router
                 }
             });
 
-            // Delete stand (Admin only)
+            // Delete stand
             group.MapDelete("/stands/{stand_id}", async (int stand_id) =>
             {
                 try
