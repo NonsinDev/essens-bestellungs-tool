@@ -1,15 +1,16 @@
-/* 
-import type { CurrenUser_response } from "@/model/AuthentificationInterface";
+
+import type {  Login_response } from "@/model/AuthentificationInterface";
 import { ref } from "vue";
-import Login from "@/views/Login.vue";
+
+import { checkSession } from '@/services/Login'
 
 
-const user = ref<CurrenUser_response | null>(null);
+const user = ref<Login_response | null>(null);
 const isLoading = ref(true);
 
 export async function initAuth() {
   try {
-    user.value = await Login();
+    user.value = await checkSession();
   } catch {
     user.value = null;
   } finally {
@@ -23,4 +24,4 @@ export function useAuth() {
     isAuthenticated: () => !!user.value,
     isLoading,
   };
-} */
+}
