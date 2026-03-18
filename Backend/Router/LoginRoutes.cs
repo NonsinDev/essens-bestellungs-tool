@@ -9,7 +9,7 @@ namespace Backend.Router
         public static void MapLoginRoutes(this RouteGroupBuilder group, string conn_str)
         {
             // Login-Check: Überprüft ob ein Account mit diesen Daten existiert
-            group.MapPost("/login-check", async (LoginRequest req) =>
+            group.MapGet("/login-check", async (LoginRequest req) =>
             {
                 try
                 {
