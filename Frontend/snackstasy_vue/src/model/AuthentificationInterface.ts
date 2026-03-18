@@ -4,18 +4,16 @@ export interface Login_data {
 }
 
 export interface Login_response {
-  exists: boolean,
-  user_id: number,
-  first_name: string,
-  last_name: string,
-  balance: number
+  logged_in: boolean
 }
 
 export interface CurrenUser_response {
-  message: string,
   logged_in: boolean,
-  user_id: number,
+  ticket_id: number,
   first_name: string,
   last_name: string,
-  balance: number
+}
+export interface Login_Request {
+  ticket_id: string;
+  username: string
 }

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
-
+import { useAuth, initAuth } from "../services/Authentification";
 import Login from '@/views/Login.vue'
 import FoodMenu from '../views/FoodMenu.vue';
 
@@ -26,17 +26,18 @@ const router = createRouter({
 
 
 // 🔒 Globaler Login-Schutz
-router.beforeEach((to, _from, next) => {
-  const isAuthenticated = sessionStorage.getItem("auth") === "true";
+router.beforeEach(async (to, _from, next) => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (isLoading.value) {
+    await initAuth(); // 👈 Session im Backend prüfen
+  }
+
+  if (to.meta.requiresAuth && !isAuthenticated()) {
     next("/login");
-  } 
-  else if (to.path === "/login" && isAuthenticated) {
-    next("/");
-  } 
-  else {
+  } else {
     next();
   }
 });
+
 export default router

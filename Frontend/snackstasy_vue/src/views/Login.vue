@@ -8,7 +8,7 @@ import InputText from 'primevue/inputtext'
 import { Login } from '@/services/Login'
 
 const username = ref('')
-const password = ref('')
+const ticket_id = ref('')
 const router = useRouter()
 const error = ref('')
 const showScanner = ref(false)
@@ -19,7 +19,7 @@ async function login() {
   try {
     let result = await Login({
       username: username.value,
-      user_id: password.value,
+      ticket_id: ticket_id.value,
     })
     if (result.logged_in == true) {
       sessionStorage.setItem('auth', 'true')
@@ -31,7 +31,7 @@ async function login() {
 
         result,
         username.value,
-        password.value,
+        ticket_id.value,
       )
     }
   } catch (error) {
@@ -66,7 +66,7 @@ function paintBoundingBox(detectedCodes: DetectedBarcode[], ctx: CanvasRendering
 
 function onDetect(detectedCodes: DetectedBarcode[]) {
   if (detectedCodes.length > 0 && detectedCodes[0]) {
-    password.value = detectedCodes[0].rawValue
+    ticket_id.value = detectedCodes[0].rawValue
     showScanner.value = false
     error.value = ''
   }
@@ -128,7 +128,7 @@ onMounted(() => {
         <div class="field">
           <div class="field__icon"><i class="pi pi-ticket"></i></div>
           <InputText
-            v-model="password"
+            v-model="ticket_id"
             id="password"
             class="field__input"
             placeholder="Ticket ID"
