@@ -21,7 +21,7 @@ services:
 
   api:
     build:
-      context: ./Backend
+      context: ./
       dockerfile: Dockerfile
     depends_on:
       db:

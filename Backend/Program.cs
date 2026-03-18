@@ -43,7 +43,7 @@ catch (Exception ex)
 await WaitForDatabaseAsync(conn_str);
 
 // **Init SQL ausführen**
-string backendDir = Directory.GetParent(AppContext.BaseDirectory)   // net8.0
+/* string backendDir = Directory.GetParent(AppContext.BaseDirectory)   // net8.0
                              .Parent  // Debug
                              .Parent  // bin
                              .FullName; // jetzt im Backend-Ordner
@@ -52,7 +52,7 @@ string sqlFilePath = Path.Combine(backendDir, "..", "..", "mysql-init", "init.sq
 await ExecuteSqlFileAsync(conn_str, sqlFilePath);
 
 Console.WriteLine("✅ Database initialized! " + sqlFilePath + " " +  conn_str);
-
+ */
 // CORS enabling
 app.UseCors(builder => builder
     .SetIsOriginAllowed(_ => true)
