@@ -7,7 +7,7 @@ namespace Backend.Services
             string initials = $"{firstName[0]}{lastName[0]}".ToUpper();
             int random = Random.Shared.Next(100000, 999999);
 
-            return $"{initials}-{random}";
+            return $"{initials}{random}";
         }
     }
 }

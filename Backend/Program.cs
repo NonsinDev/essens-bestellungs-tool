@@ -5,6 +5,9 @@ using Backend.Router;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
 
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 // Session configuration
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -12,11 +15,16 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        // 🔥 WICHTIG für localhost (HTTP)
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+//   options.Cookie.SameSite = SameSiteMode.None;
+//   options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 var app = builder.Build();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 string db_host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 string db_port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";

@@ -8,31 +8,20 @@ namespace Backend.Router
     {
         public static void MapLoginRoutes(this RouteGroupBuilder group, string conn_str)
         {
-            // Login-Check: Überprüft ob ein Account mit diesen Daten existiert
-            group.MapGet("/login-check", async (LoginRequest req) =>
+            group.MapGet("/login/session", (HttpContext context) =>
             {
-                try
+                var ticketId = context.Session.GetString("ticket_id");
+
+                if (string.IsNullOrEmpty(ticketId))
                 {
-                    if (string.IsNullOrWhiteSpace(req.username))
-                        return Results.BadRequest(new { error = "Username is required." });
-
-                    using var conn = new MySqlConnection(conn_str);
-
-                    User user = await conn.QueryFirstAsync<User>($"SELECT user_id, first_name, last_name, balance, ticket_id FROM users WHERE ticket_id = { req.ticket_id };");
-
-                    return Results.Ok(new
-                    {
-                        exists = true,
-                        user.ticket_id,
-                        user.first_name,
-                        user.last_name
-                    });
+                    return Results.Ok(new { logged_in = false });
                 }
-                catch (Exception ex)
+
+                return Results.Ok(new
                 {
-                    Console.WriteLine($"Error in POST /login-check: {ex}");
-                    return Results.Problem("Internal server error: " + ex.Message);
-                }
+                    logged_in = true,
+                    ticket_id = ticketId
+                });
             });
 
             // Login: Erstellt eine Session für den Benutzer
@@ -45,11 +34,15 @@ namespace Backend.Router
 
                     using var conn = new MySqlConnection(conn_str);
                     
-                    User user = await conn.QueryFirstAsync<User>($"SELECT user_id, first_name, last_name, balance, ticket_id FROM users WHERE ticket_id = {req.ticket_id};");
+                    User? user = await conn.QueryFirstOrDefaultAsync<User>(
+                        "SELECT user_id, first_name, last_name, balance, ticket_id FROM users WHERE ticket_id = @ticket_id",
+                        new { ticket_id = req.ticket_id }
+                    );
 
                     if (user == null)
+                    {
                         return Results.Problem(detail: "Ticket ID not found.", statusCode: 404);
-                        
+                    }
                     // Session erstellen
                     context.Session.SetString("ticket_id", req.ticket_id.ToString());
                     context.Session.SetString("username", req.username);
