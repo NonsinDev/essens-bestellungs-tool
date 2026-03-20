@@ -21,7 +21,7 @@ export async function initAuth() {
 export function useAuth() {
   return {
     user,
-    isAuthenticated: () => !!user.value,
+    isAuthenticated: () => user.value?.logged_in === true,
     isLoading,
   };
 }
