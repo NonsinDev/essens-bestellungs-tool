@@ -5,6 +5,8 @@ using Backend.Router;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
 
+string URL = "http://localhost:5002";
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -25,6 +27,8 @@ builder.Services.AddSession(options =>
 WebApplication app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
+
+Console.WriteLine($"✅ Swagger UI available at {URL}/swagger");
 
 string db_host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
 string db_port = Environment.GetEnvironmentVariable("DB_PORT") ?? "3306";
