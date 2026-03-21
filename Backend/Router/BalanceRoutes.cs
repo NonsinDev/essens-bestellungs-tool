@@ -58,7 +58,7 @@ namespace Backend.Router
                     const string query =
                         "UPDATE users SET balance = balance - @amount WHERE user_id = @user_id AND balance >= @amount;";
 
-                    int rows_affected = await conn.ExecuteAsync(query, new { amount, user_id});
+                    int rows_affected = await conn.ExecuteAsync($"UPDATE users SET balance = balance - {req.amount} WHERE user_id = {req.user_id} AND balance >= {req.amount};");
 
                     if (rows_affected == 0)
                     {
