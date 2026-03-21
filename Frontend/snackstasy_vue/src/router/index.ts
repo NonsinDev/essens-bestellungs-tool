@@ -34,7 +34,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (to.meta.requiresAuth && !isAuthenticated()) {
-    next("/login");
+    return next("/login");
   } else {
     next();
   }
