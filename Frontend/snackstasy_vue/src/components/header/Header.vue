@@ -15,20 +15,19 @@ const visible = ref(false)
 const visibleBalance = ref(false)
 const balance = ref(25.0)
 const profileImage = ref(profileManImage)
-const currentUser = ref<User_Data | undefined>();
-const sessionData = ref<Login_response>();
+const currentUser = ref<User_Data | undefined>()
+const sessionData = ref<Login_response>()
 
-
-  onMounted(async () => {
-  await loadSessionData(); // nur einmal beim Laden
-});
+onMounted(async () => {
+  await loadSessionData() // nur einmal beim Laden
+})
 
 // Wenn sessionData sich ändert, lade UserData
 watch(sessionData, async (newSession) => {
   if (newSession) {
-    await loadUserData();
+    await loadUserData()
   }
-});
+})
 
 // Handlers
 const handleProfileImageChange = (newImage: string) => {
@@ -42,12 +41,12 @@ const handleBalanceUpdate = (newBalance: number) => {
 const isMobile = computed(() => window.innerWidth <= 600)
 
 async function loadUserData() {
-  if (!sessionData.value) return;
-  currentUser.value = await UserData(sessionData.value.ticket_id);
+  if (!sessionData.value) return
+  currentUser.value = await UserData(sessionData.value.ticket_id)
 }
 
 async function loadSessionData() {
-  sessionData.value = await checkSession();
+  sessionData.value = await checkSession()
 }
 </script>
 
@@ -81,7 +80,7 @@ async function loadSessionData() {
       :style="{ width: '90vw', maxWidth: '700px', marginTop: '5rem' }"
     >
       <Dialog_balance
-      v-if="currentUser"
+        v-if="currentUser"
         :currentUser="currentUser"
         @update-balance="handleBalanceUpdate"
         @close-dialog="visibleBalance = false"
@@ -89,7 +88,13 @@ async function loadSessionData() {
       />
       <template #footer>
         <div class="dialog-footer">
-          <Button type="button" label="Schließen" severity="secondary" @click="visibleBalance = false" class="footer-button" />
+          <Button
+            type="button"
+            label="Schließen"
+            severity="secondary"
+            @click="visibleBalance = false"
+            class="footer-button"
+          />
         </div>
       </template>
     </Dialog>
@@ -116,7 +121,13 @@ async function loadSessionData() {
       />
       <template #footer>
         <div class="dialog-footer">
-          <Button type="button" label="Schließen" severity="secondary" @click="visible = false" class="footer-button" />
+          <Button
+            class="footer-button"
+            type="button"
+            label="Schließen"
+            severity="secondary"
+            @click="visible = false"
+          />
         </div>
       </template>
     </Dialog>
@@ -186,7 +197,9 @@ async function loadSessionData() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .header-profile:hover {
   transform: scale(1.1);
@@ -222,6 +235,36 @@ h4 {
   padding: 1.5rem 2rem;
 }
 
+.footer-button {
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+  color: #1a1a1a;
+
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+/* Hover Effekt ✨ */
+.footer-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #ffe55c, #ffc107);
+}
+
+/* Klick Effekt */
+.footer-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(255, 215, 0, 0.4);
+}
+
+.dialog-footer {
+  padding: 0.5rem;
+}
 
 /* Mobile Anpassungen */
 @media (max-width: 600px) {

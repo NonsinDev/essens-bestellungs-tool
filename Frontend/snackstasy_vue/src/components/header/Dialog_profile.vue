@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import profileManImage from '@/assets/Profil_man.png'
 import profileWomanImage from '@/assets/Profil_woman.png'
-import type { User_Data } from '@/model/UserData';
+import type { User_Data } from '@/model/UserData'
 
 const props = defineProps<{
   currentImage: string
@@ -13,7 +13,6 @@ const emit = defineEmits<{
   updateProfileImage: [newImage: string]
   switchToBalance: []
 }>()
-
 
 // Balance / Rechnungen - wird vom Header übergeben
 const topUps = ref([
@@ -59,7 +58,9 @@ const handleBalanceClick = () => {
 
           <div class="info-item">
             <label class="label">Name</label>
-            <div class="value-display">{{ props.currentUser?.first_name }} {{ props.currentUser?.last_name }}</div>
+            <div class="value-display">
+              {{ props.currentUser?.first_name }} {{ props.currentUser?.last_name }}
+            </div>
           </div>
 
           <div class="info-item">
@@ -74,7 +75,9 @@ const handleBalanceClick = () => {
           <h2 class="info-title">Guthaben</h2>
 
           <div class="balance-display" @click="handleBalanceClick">
-            <div class="balance-amount" v-if="props.currentUser">{{ props.currentUser.balance.toFixed(2) }} €</div>
+            <div class="balance-amount" v-if="props.currentUser">
+              {{ props.currentUser.balance.toFixed(2) }} €
+            </div>
             <p class="balance-label">Aktueller Kontostand</p>
           </div>
 
@@ -232,7 +235,7 @@ const handleBalanceClick = () => {
 
 /* Info Card */
 .info-card {
-  background: rgba(255, 215, 0, 0.08);
+  background: rgba(79, 16, 85, 0.08);
   border: 2px solid rgba(255, 215, 0, 0.2);
   border-radius: 12px;
   padding: 1rem 1.25rem;
