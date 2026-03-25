@@ -194,6 +194,7 @@ const filteredStands = () => {
   flex: 1;
   padding: 15px 20px;
   display: flex;
+  color: #020202;
   flex-direction: column;
   justify-content: space-between;
 }

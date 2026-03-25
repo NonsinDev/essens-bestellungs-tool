@@ -1,24 +1,38 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import { useAuth, initAuth } from "../services/Authentification";
+import StaffHome from '../views/EmployeeHome.vue';
 import Login from '@/views/Login.vue'
 import FoodMenu from '../views/FoodMenu.vue';
+import StaffLogin from '../views/EmployeeLogin.vue';
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: Login,
       meta: { showHeader: false }
     },
     {
-      path: '/',
+      path: '/employee-home',
+      name: 'employee-home',
+      component: StaffHome,
+      meta: { showHeader: false }
+    },
+    {
+      path: '/menu',
       name: 'home',
       component: FoodMenu,
       meta: { requiresAuth: true,  
               showHeader: true
       },
+    },
+    {
+      path: '/employee-login',
+      name: 'employee-login',
+      component: StaffLogin,
+      meta: { showHeader: false }
     },
 
   ],
