@@ -4,7 +4,7 @@ namespace Backend.Models
     {
         public required int stand_id { get; set; }
         public required string name { get; set; }
-        public required int pickup_id { get; set; }
+        public required int pickup_adresse { get; set; }
         public required int tablet_id { get; set; }
     }
 
@@ -13,6 +13,7 @@ namespace Backend.Models
         public required string name { get; set; }
         public required int pickup_id { get; set; }
         public required int tablet_id { get; set; }
+        public required string category { get; set; }
     }
 
     public class UpdateStandRequest

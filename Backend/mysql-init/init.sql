@@ -21,8 +21,9 @@ CREATE TABLE IF NOT EXISTS employees (
 CREATE TABLE IF NOT EXISTS stands (
   stand_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  pickup_id INT NOT NULL,
-  tablet_id INT NOT NULL
+  pickup_adresse VARCHAR(255) NOT NULL,
+  tablet_id INT NOT NULL,
+  category VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -30,7 +31,7 @@ CREATE TABLE IF NOT EXISTS items (
   stand_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
-  stock INT NOT NULL,
+  stock INT NOT NULL DEFAULT 0,
   FOREIGN KEY (stand_id) REFERENCES stands(stand_id)
 );
 

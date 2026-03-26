@@ -14,7 +14,7 @@ namespace Backend.Router
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    var items = await conn.QueryAsync<Item>(
+                    Item items = await conn.QueryFirstAsync<Item>(
                         "SELECT item_id, stand_id, name, price, stock FROM items;");
 
                     return Results.Ok(items);
@@ -26,34 +26,15 @@ namespace Backend.Router
                 }
             });
 
-            // Get items by stand
-            group.MapGet("/stands/{stand_id}/items", async (int stand_id) =>
-            {
-                try
-                {
-                    using var conn = new MySqlConnection(conn_str);
-                    var items = await conn.QueryAsync<Item>(
-                        "SELECT item_id, stand_id, name, price, stock FROM items WHERE stand_id = @stand_id;",
-                        new { stand_id });
-
-                    return Results.Ok(items);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error in GET /stands/{stand_id}/items: {ex}");
-                    return Results.Problem("Internal server error: " + ex.Message);
-                }
-            });
-
             // Get item by ID
             group.MapGet("/items/{item_id}", async (int item_id) =>
             {
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    var item = await conn.QueryFirstOrDefaultAsync<Item>(
-                        "SELECT item_id, stand_id, name, price, stock FROM items WHERE item_id = @id;",
-                        new { id = item_id });
+                    Item item = await conn.QueryFirstAsync<Item>(
+                        "SELECT item_id, stand_id, name, price, stock FROM items WHERE item_id = @item_id;",
+                        new { item_id });
 
                     if (item == null)
                         return Results.NotFound(new { error = "Item not found." });
@@ -72,27 +53,7 @@ namespace Backend.Router
             {
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(req.name))
-                        return Results.BadRequest(new { error = "Item name is required." });
-
-                    if (req.stand_id <= 0)
-                        return Results.BadRequest(new { error = "Valid stand_id is required." });
-
-                    if (req.price < 0)
-                        return Results.BadRequest(new { error = "Price cannot be negative." });
-
-                    if (req.stock < 0)
-                        return Results.BadRequest(new { error = "Stock cannot be negative." });
-
                     using var conn = new MySqlConnection(conn_str);
-
-                    // Verify stand exists
-                    var stand_exists = await conn.QueryFirstOrDefaultAsync<int>(
-                        "SELECT COUNT(*) FROM stands WHERE stand_id = @id;",
-                        new { id = req.stand_id });
-
-                    if (stand_exists == 0)
-                        return Results.BadRequest(new { error = "Stand not found." });
 
                     const string query = @"
                         INSERT INTO items (stand_id, name, price, stock) 

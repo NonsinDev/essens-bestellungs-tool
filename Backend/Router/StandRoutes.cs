@@ -14,7 +14,7 @@ namespace Backend.Router
                 try
                 {
                     using MySqlConnection conn = new MySqlConnection(conn_str);
-                    Stand stands = await conn.QueryFirstAsync<Stand>("SELECT stand_id, name, pickup_id, tablet_id FROM stands;");
+                    Stand stands = await conn.QueryFirstAsync<Stand>("SELECT stand_adresse, name, pickup_id, tablet_id FROM stands;");
 
                     return Results.Ok(stands);
                 }
@@ -26,12 +26,12 @@ namespace Backend.Router
             });
 
             // Get stand by ID
-            group.MapGet("/stands/{stand_id}", async (int stand_id) =>
+            group.MapGet("/stands/{stand_adresse}", async (string stand_adresse) =>
             {
                 try
                 {
                     using MySqlConnection conn = new MySqlConnection(conn_str);
-                    Stand stand = await conn.QueryFirstAsync<Stand>($"SELECT stand_id, name, pickup_id, tablet_id FROM stands WHERE stand_id = {stand_id};");
+                    Stand stand = await conn.QueryFirstAsync<Stand>($"SELECT stand_adresse, name, pickup_id, tablet_id FROM stands WHERE stand_adresse = {stand_adresse};");
 
                     if (stand == null)
                         return Results.NotFound(new { error = "Stand not found." });
@@ -40,7 +40,26 @@ namespace Backend.Router
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error in GET /stands/{stand_id}: {ex}");
+                    Console.WriteLine($"Error in GET /stands/{stand_adresse}: {ex}");
+                    return Results.Problem("Internal server error: " + ex.Message);
+                }
+            });
+
+            // Get items by stand
+            group.MapGet("/stands/{stand_adresse}/items", async (string stand_adresse) =>
+            {
+                try
+                {
+                    using var conn = new MySqlConnection(conn_str);
+                    Item items = await conn.QueryFirstAsync<Item>(
+                        "SELECT item_id, stand_id, name, price, stock FROM items WHERE stand_id = @stand_adresse;",
+                        new { stand_adresse });
+
+                    return Results.Ok(items);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in GET /stands/{stand_adresse}/items: {ex}");
                     return Results.Problem("Internal server error: " + ex.Message);
                 }
             });
@@ -55,15 +74,9 @@ namespace Backend.Router
 
                     using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    int id = await conn.QueryFirstAsync<int>($"INSERT INTO stands (name, pickup_id, tablet_id) VALUES ({req.name}, {req.pickup_id}, {req.tablet_id});SELECT LAST_INSERT_ID();");
+                    int id = await conn.QueryFirstAsync<int>($"INSERT INTO stands (name, pickup_adresse, tablet_id, category) VALUES ({req.name}, {req.pickup_id}, {req.tablet_id}, {req.category});SELECT LAST_INSERT_ID();");
 
-                    return Results.Ok(new
-                    {
-                        stand_id = id,
-                        req.name,
-                        req.pickup_id,
-                        req.tablet_id
-                    });
+                    return Results.Ok();
                 }
                 catch (Exception ex)
                 {
