@@ -42,11 +42,6 @@ namespace Backend.Router
 
                     using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    const string query =
-                        @"INSERT INTO users (first_name, last_name, balance, ticket_id)
-                         VALUES (@fn, @ln, 0, @ticketId);
-                          SELECT LAST_INSERT_ID();";
-
                     const int maxAttempts = 10;
                     int attempt = 0;
 
@@ -57,7 +52,9 @@ namespace Backend.Router
 
                         try
                         {
-                            int user_id = await conn.QueryFirstAsync<int>(query,
+                            int user_id = await conn.QueryFirstAsync<int>(@"INSERT INTO users (first_name, last_name, balance, ticket_id)
+                         VALUES (@fn, @ln, 0, @ticketId);
+                          SELECT LAST_INSERT_ID();",
                                 new { fn = req.first_name, ln = req.last_name, ticketId });
 
                             return Results.Ok(new

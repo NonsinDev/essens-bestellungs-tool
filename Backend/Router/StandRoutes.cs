@@ -31,7 +31,7 @@ namespace Backend.Router
                 try
                 {
                     using MySqlConnection conn = new MySqlConnection(conn_str);
-                    Stand stand = await conn.QueryFirstAsync<Stand>($"SELECT stand_adresse, name, pickup_id, tablet_id FROM stands WHERE stand_adresse = {stand_adresse};");
+                    Stand stand = await conn.QueryFirstAsync<Stand>("SELECT stand_adresse, name, pickup_id, tablet_id FROM stands WHERE stand_adresse = @stand_adresse;", new { stand_adresse });
 
                     if (stand == null)
                         return Results.NotFound(new { error = "Stand not found." });
@@ -74,7 +74,7 @@ namespace Backend.Router
 
                     using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    int id = await conn.QueryFirstAsync<int>($"INSERT INTO stands (name, pickup_adresse, tablet_id, category) VALUES ({req.name}, {req.pickup_id}, {req.tablet_id}, {req.category});SELECT LAST_INSERT_ID();");
+                    int id = await conn.QueryFirstAsync<int>("INSERT INTO stands (name, pickup_adresse, tablet_id, category) VALUES (@name, @pickup_id, @tablet_id, @category);SELECT LAST_INSERT_ID();", new { req.name, req.pickup_id, req.tablet_id, req.category });
 
                     return Results.Ok();
                 }

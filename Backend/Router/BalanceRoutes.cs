@@ -16,13 +16,15 @@ namespace Backend.Router
                 {
                     using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    int rows_affected = await conn.ExecuteAsync($"UPDATE users SET balance = balance - {req.amount} WHERE ticket_id = {req.ticket_id} AND balance >= {req.amount};");
+                    int rows_affected = await conn.ExecuteAsync(
+                        "UPDATE users SET balance = balance - @amount WHERE ticket_id = @ticket_id AND balance >= @amount;",
+                        new { req.amount, req.ticket_id });
 
                     if (rows_affected == 0)
                     {
-                        const string balance_check_query =
-                            "SELECT balance FROM users WHERE ticket_id = @ticket_id;";
-                        var exists = await conn.ExecuteScalarAsync<long>(balance_check_query, new { req.ticket_id });
+                        var exists = await conn.ExecuteScalarAsync<long>(
+                            "SELECT balance FROM users WHERE ticket_id = @ticket_id;",
+                            new { req.ticket_id });
                         if (exists == 0)
                             return Results.NotFound(new { error = "User not found." });
                         
@@ -44,10 +46,9 @@ namespace Backend.Router
                 try
                 {
                     using var conn = new MySqlConnection(conn_str);
-                    const string query =
-                        "UPDATE users SET balance = balance + @amount WHERE ticket_id = @ticket_id;";
-
-                    int rows_affected = await conn.ExecuteAsync(query, new { req.amount, req.ticket_id });
+                    int rows_affected = await conn.ExecuteAsync(
+                        "UPDATE users SET balance = balance + @amount WHERE ticket_id = @ticket_id;",
+                        new { req.amount, req.ticket_id });
 
                     if (rows_affected == 0)
                         return Results.NotFound(new { error = "User not found." });

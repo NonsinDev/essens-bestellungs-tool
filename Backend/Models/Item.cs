@@ -16,10 +16,8 @@ namespace Backend.Models
         public int stock { get; set; }
     }
 
-    public class UpdateItemRequest
+    public class UpdateStockRequest
     {
-        public string? name { get; set; }
-        public decimal? price { get; set; }
-        public int? stock { get; set; }
+        public required int adjustment { get; set; }
     }
 }

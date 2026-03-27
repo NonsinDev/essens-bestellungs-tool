@@ -13,7 +13,8 @@ namespace Backend.Router
             {
                 try
                 {
-                    using var conn = new MySqlConnection(conn_str);
+                    using MySqlConnection conn = new MySqlConnection(conn_str);
+
                     Item items = await conn.QueryFirstAsync<Item>(
                         "SELECT item_id, stand_id, name, price, stock FROM items;");
 
@@ -31,7 +32,8 @@ namespace Backend.Router
             {
                 try
                 {
-                    using var conn = new MySqlConnection(conn_str);
+                    using MySqlConnection conn = new MySqlConnection(conn_str);
+
                     Item item = await conn.QueryFirstAsync<Item>(
                         "SELECT item_id, stand_id, name, price, stock FROM items WHERE item_id = @item_id;",
                         new { item_id });
@@ -53,20 +55,11 @@ namespace Backend.Router
             {
                 try
                 {
-                    using var conn = new MySqlConnection(conn_str);
+                    using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    const string query = @"
-                        INSERT INTO items (stand_id, name, price, stock) 
-                        VALUES (@stand_id, @name, @price, @stock);
-                        SELECT LAST_INSERT_ID();";
-
-                    int id = await conn.QueryFirstAsync<int>(query, new
-                    {
-                        req.stand_id,
-                        req.name,
-                        req.price,
-                        req.stock
-                    });
+                    int id = await conn.QueryFirstAsync<int>(
+                        "INSERT INTO items (stand_id, name, price, stock) VALUES (@stand_id, @name, @price, @stock); SELECT LAST_INSERT_ID();",
+                        new { req.stand_id, req.name, req.price, req.stock });
 
                     return Results.Ok(new
                     {
@@ -84,88 +77,16 @@ namespace Backend.Router
                 }
             });
 
-            // Update item
-            group.MapPut("/items/{item_id}", async (int item_id, UpdateItemRequest req) =>
-            {
-                try
-                {
-                    using var conn = new MySqlConnection(conn_str);
-
-                    List<string> updates = new List<string>();
-                    DynamicParameters parameters = new DynamicParameters();
-                    parameters.Add("id", item_id);
-
-                    if (!string.IsNullOrEmpty(req.name))
-                    {
-                        updates.Add("name = @name");
-                        parameters.Add("name", req.name);
-                    }
-                    if (req.price.HasValue)
-                    {
-                        if (req.price < 0)
-                            return Results.BadRequest(new { error = "Price cannot be negative." });
-                        updates.Add("price = @price");
-                        parameters.Add("price", req.price);
-                    }
-                    if (req.stock.HasValue)
-                    {
-                        if (req.stock < 0)
-                            return Results.BadRequest(new { error = "Stock cannot be negative." });
-                        updates.Add("stock = @stock");
-                        parameters.Add("stock", req.stock);
-                    }
-
-                    if (updates.Count == 0)
-                        return Results.BadRequest(new { error = "No fields to update." });
-
-                    string query = $"UPDATE items SET {string.Join(", ", updates)} WHERE item_id = @id;";
-                    int rows_affected = await conn.ExecuteAsync(query, parameters);
-
-                    if (rows_affected == 0)
-                        return Results.NotFound(new { error = "Item not found." });
-
-                    return Results.Ok(new { message = $"Item {item_id} updated successfully." });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error in PUT /items/{item_id}: {ex}");
-                    return Results.Problem("Internal server error: " + ex.Message);
-                }
-            });
-
-            // Delete item (Admin only)
-            group.MapDelete("/items/{item_id}", async (int item_id) =>
-            {
-                try
-                {
-                    using var conn = new MySqlConnection(conn_str);
-
-                    int rows_affected = await conn.ExecuteAsync(
-                        "DELETE FROM items WHERE item_id = @id;",
-                        new { id = item_id });
-
-                    if (rows_affected == 0)
-                        return Results.NotFound(new { error = "Item not found." });
-
-                    return Results.Ok(new { message = $"Item {item_id} deleted successfully." });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error in DELETE /items/{item_id}: {ex}");
-                    return Results.Problem("Internal server error: " + ex.Message);
-                }
-            });
-
-            // Update stock (Cashier/Manager/Admin)
+            // Update stock
             group.MapPatch("/items/{item_id}/stock", async (int item_id, UpdateStockRequest req) =>
             {
                 try
                 {
-                    using var conn = new MySqlConnection(conn_str);
+                    using MySqlConnection conn = new MySqlConnection(conn_str);
 
-                    var item = await conn.QueryFirstOrDefaultAsync<Item>(
-                        "SELECT item_id, stock FROM items WHERE item_id = @id;",
-                        new { id = item_id });
+                    Item item = await conn.QueryFirstAsync<Item>(
+                        "SELECT item_id, stock FROM items WHERE item_id = @item_id;",
+                        new { item_id });
 
                     if (item == null)
                         return Results.NotFound(new { error = "Item not found." });
@@ -175,16 +96,10 @@ namespace Backend.Router
                         return Results.BadRequest(new { error = "Stock cannot be negative." });
 
                     await conn.ExecuteAsync(
-                        "UPDATE items SET stock = @stock WHERE item_id = @id;",
-                        new { id = item_id, stock = new_stock });
+                        "UPDATE items SET stock = @new_stock WHERE item_id = @item_id;",
+                        new { item_id, new_stock });
 
-                    return Results.Ok(new
-                    {
-                        item_id = item_id,
-                        old_stock = item.stock,
-                        new_stock = new_stock,
-                        adjustment = req.adjustment
-                    });
+                    return Results.Ok();
                 }
                 catch (Exception ex)
                 {
@@ -193,10 +108,5 @@ namespace Backend.Router
                 }
             });
         }
-    }
-
-    public class UpdateStockRequest
-    {
-        public required int adjustment { get; set; }
     }
 }
